@@ -1,0 +1,7 @@
+Test,Method,CLIP_Similarity
+1,Baseline,0.3108
+1,Optimized,0.3365
+2,Baseline,0.3752
+2,Optimized,0.3757
+3,Baseline,0.3234
+3,Optimized,0.3288

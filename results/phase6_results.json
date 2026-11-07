@@ -1,0 +1,15 @@
+{
+    "artifact_analysis": {
+        "blur_score": 1580.092603587531,
+        "edge_density": 0.23426437377929688,
+        "noise_score": 9.642641067504883,
+        "possible_blur": false,
+        "possible_noise": false
+    },
+    "adaptive_settings": {
+        "resolution": 512,
+        "steps": 4,
+        "mode": "High resource mode"
+    },
+    "adaptive_generation_time": 0.6166151420000006
+}

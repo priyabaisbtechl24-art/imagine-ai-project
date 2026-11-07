@@ -1,0 +1,7 @@
+Test,Method,Steps,Generation_Time,GPU_Memory_GB,Resolution
+1,Baseline,4,1.731,3.599,512x512
+1,Optimized,1,0.424,3.599,512x512
+2,Baseline,4,1.211,3.599,512x512
+2,Optimized,1,0.417,3.599,512x512
+3,Baseline,4,1.387,3.599,512x512
+3,Optimized,1,0.601,3.599,512x512

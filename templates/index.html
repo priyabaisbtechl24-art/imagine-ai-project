@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>ImagineAI - AI Image Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111827;
+    color: white;
+}
+
+header {
+    padding: 22px 8%;
+    background: #1f2937;
+    font-size: 25px;
+    font-weight: bold;
+    color: #a78bfa;
+}
+
+.container {
+    max-width: 950px;
+    margin: 40px auto;
+    padding: 25px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 38px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #cbd5e1;
+    margin-bottom: 35px;
+}
+
+.panel {
+    background: #1f2937;
+    padding: 25px;
+    border-radius: 15px;
+}
+
+label {
+    display: block;
+    margin: 18px 0 8px;
+    font-weight: bold;
+}
+
+textarea, select {
+    width: 100%;
+    padding: 14px;
+    border-radius: 9px;
+    border: 1px solid #475569;
+    background: #111827;
+    color: white;
+    font-size: 15px;
+}
+
+textarea {
+    height: 110px;
+    resize: vertical;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 22px;
+    border: none;
+    border-radius: 9px;
+    background: #8b5cf6;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #7c3aed;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.result {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.result img {
+    max-width: 100%;
+    border-radius: 12px;
+    margin-top: 15px;
+}
+
+.status {
+    margin-top: 20px;
+    color: #c4b5fd;
+    text-align: center;
+}
+
+.download {
+    display: inline-block;
+    padding: 12px 25px;
+    margin-top: 15px;
+    background: #059669;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+hr {
+    border: 1px solid #374151;
+    margin: 45px 0;
+}
+
+input[type=file] {
+    width: 100%;
+    padding: 12px;
+    background: #111827;
+    border-radius: 8px;
+    color: white;
+}
+
+footer {
+    text-align: center;
+    color: #9ca3af;
+    padding: 25px;
+}
+</style>
+</head>
+
+<body>
+
+<header>✨ ImagineAI</header>
+
+<div class="container">
+
+<h1>Turn Your Imagination Into Images</h1>
+
+<p class="subtitle">
+Create AI images quickly with resource-efficient generation.
+</p>
+
+<div class="panel">
+
+<h2>AI Image Generator</h2>
+
+<label>Enter your image prompt</label>
+
+<textarea id="prompt"
+placeholder="Example: A realistic 3D futuristic city at sunset..."></textarea>
+
+<label>Generation Steps</label>
+
+<select id="steps">
+<option value="1">1 Step - Fast</option>
+<option value="2">2 Steps - Balanced</option>
+<option value="4">4 Steps - Detailed</option>
+</select>
+
+<label>Image Resolution</label>
+
+<select id="resolution">
+<option value="256">256 × 256</option>
+<option value="384">384 × 384</option>
+<option value="512" selected>512 × 512</option>
+</select>
+
+<button id="generateBtn" onclick="generateImage()">
+Generate Image
+</button>
+
+<div class="status" id="status"></div>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<hr>
+
+<div class="panel">
+
+<h2>Image to HD Enhancer</h2>
+
+<p>Upload an image to improve its resolution and appearance.</p>
+
+<label>Select Image</label>
+<input type="file" id="imageFile" accept="image/*">
+
+<label>Upscale Factor</label>
+
+<select id="scale">
+<option value="2">2× Upscale</option>
+<option value="4">4× Upscale</option>
+</select>
+
+<button onclick="enhanceImage()">Enhance Image</button>
+
+<div class="status" id="enhanceStatus"></div>
+
+<div class="result" id="enhanceResult"></div>
+
+</div>
+
+</div>
+
+<footer>ImagineAI | Resource-Efficient Text-to-Image Generation</footer>
+
+<script>
+
+async function generateImage() {
+
+    const prompt = document.getElementById("prompt").value.trim();
+    const steps = Number(document.getElementById("steps").value);
+    const resolution = Number(document.getElementById("resolution").value);
+
+    const status = document.getElementById("status");
+    const result = document.getElementById("result");
+    const button = document.getElementById("generateBtn");
+
+    if (!prompt) {
+        status.textContent = "Please enter an image prompt.";
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Generating...";
+    status.textContent = "Please wait while ImagineAI creates your image...";
+    result.innerHTML = "";
+
+    try {
+
+        const response = await fetch("/api/generate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                prompt: prompt,
+                steps: steps,
+                resolution: resolution
+            })
+        });
+
+        const responseText = await response.text();
+
+        if (!responseText) {
+            throw new Error("The server returned an empty response.");
+        }
+
+        let data;
+
+        try {
+            data = JSON.parse(responseText);
+        } catch (error) {
+            throw new Error("Invalid server response: " + responseText.slice(0, 200));
+        }
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || "Image generation failed.");
+        }
+
+        result.innerHTML = `
+            <h3>Generated Image</h3>
+            <img src="${data.image}" alt="Generated AI image">
+            <br>
+            <a class="download" href="${data.image}" download="ImagineAI.png">
+                Download Image
+            </a>
+        `;
+
+        status.textContent = "Image generated successfully! Time: " + data.time + " seconds";
+
+    } catch (error) {
+
+        status.textContent = "Error: " + error.message;
+        console.error(error);
+
+    } finally {
+
+        button.disabled = false;
+        button.textContent = "Generate Image";
+
+    }
+}
+
+
+async function enhanceImage() {
+
+    const file = document.getElementById("imageFile").files[0];
+    const scale = document.getElementById("scale").value;
+
+    const status = document.getElementById("enhanceStatus");
+    const result = document.getElementById("enhanceResult");
+
+    if (!file) {
+        status.textContent = "Please select an image.";
+        return;
+    }
+
+    status.textContent = "Enhancing image...";
+    result.innerHTML = "";
+
+    try {
+
+        const formData = new FormData();
+        formData.append("image", file);
+        formData.append("scale", scale);
+
+        const response = await fetch("/api/enhance", {
+            method: "POST",
+            body: formData
+        });
+
+        const responseText = await response.text();
+
+        if (!responseText) {
+            throw new Error("The server returned an empty response.");
+        }
+
+        let data;
+
+        try {
+            data = JSON.parse(responseText);
+        } catch (error) {
+            throw new Error("Invalid server response: " + responseText.slice(0, 200));
+        }
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || "Image enhancement failed.");
+        }
+
+        result.innerHTML = `
+            <h3>Enhanced Image</h3>
+            <img src="${data.image}" alt="Enhanced image">
+            <br>
+            <a class="download" href="${data.image}" download="ImagineAI_HD.png">
+                Download Enhanced Image
+            </a>
+        `;
+
+        status.textContent = "Image enhanced successfully!";
+
+    } catch (error) {
+
+        status.textContent = "Error: " + error.message;
+        console.error(error);
+
+    }
+}
+
+</script>
+
+</body>
+</html>
